@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 .venv/
 .DS_Store
+
+# Intermediate LoRA training checkpoints (each run keeps its final adapters.safetensors)
+models/**/0*_adapters.safetensors
+# Pipeline run logs
+results/pipeline_*
