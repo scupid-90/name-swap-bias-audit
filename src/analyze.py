@@ -45,9 +45,14 @@ def score(df):
 
 def main():
     df = pd.read_csv(ROOT / "results" / "outputs.csv")
+    # Exclude empty/truncated outputs (the model occasionally spent its whole token budget on
+    # internal reasoning and returned no text); counted and reported, not silently dropped.
+    empty = df.output.fillna("").astype(str).str.strip().str.len() < 50
+    n_empty = int(empty.sum())
+    df = df[~empty].copy()
     df = score(df)
     df.to_csv(ROOT / "results" / "scores.csv", index=False)
-    lines = [f"Outputs analysed: {len(df)}  (model: {', '.join(df.model.unique())})", ""]
+    lines = [f"Outputs analysed: {len(df)}  (excluded empty/truncated: {n_empty})  (model: {', '.join(df.model.unique())})", ""]
     if (df.model == "dry-run").any():
         lines += ["*** DRY-RUN DATA: these numbers are fake and mean nothing. ***", ""]
 

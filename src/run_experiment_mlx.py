@@ -26,6 +26,12 @@ def main():
     args = ap.parse_args()
 
     from mlx_lm import load, generate
+    from mlx_lm.sample_utils import make_sampler
+    import mlx.core as mx
+    mx.random.seed(0)  # reproducible sampling
+    # Sample at the same temperature as the Claude audit (config.TEMPERATURE). mlx_lm's default is
+    # greedy decoding, which made every 'sample' for a given prompt identical.
+    sampler = make_sampler(temp=config.TEMPERATURE)
 
     print(f"Loading {args.model}" + (f" + adapter {args.adapter}" if args.adapter else "") + " ...")
     model, tokenizer = load(args.model, adapter_path=args.adapter)
@@ -42,7 +48,7 @@ def main():
                     messages = [{"role": "user", "content": prompt}]
                     formatted = tokenizer.apply_chat_template(messages, add_generation_prompt=True)
                     for s in range(args.samples):
-                        text = generate(model, tokenizer, prompt=formatted, max_tokens=config.MAX_TOKENS, verbose=False)
+                        text = generate(model, tokenizer, prompt=formatted, max_tokens=config.MAX_TOKENS, sampler=sampler, verbose=False)
                         w.writerow(dict(name=r.name, race=r.race, gender=r.gender, task=task,
                                         condition=condition, sample=s, model=f"mlx:{args.tag}",
                                         temperature=config.TEMPERATURE, output=text))
