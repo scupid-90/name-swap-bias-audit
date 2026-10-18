@@ -24,12 +24,17 @@ def main():
     ap.add_argument("--out", default=str(ROOT / "data" / "sft_pairs.jsonl"))
     ap.add_argument("--top-frac", type=float, default=0.3,
                      help="fraction of least-tilted (most neutral) letters to use as templates")
+    ap.add_argument("--within-condition", default=None,
+                     help="select the top-frac most neutral letters WITHIN this prompt condition only "
+                          "(e.g. 'default'). Without it, mitigation letters crowd out default ones.")
     args = ap.parse_args()
 
     scored = pd.read_csv(args.scored)
     outputs = pd.read_csv(args.outputs)
     names = pd.read_csv(args.names)
 
+    if args.within_condition:
+        scored = scored[scored.condition == args.within_condition]
     scored = scored.sort_values("bias_score")
     n_keep = max(1, int(len(scored) * args.top_frac))
     keep_keys = scored.head(n_keep)[["name", "task", "condition", "sample"]]
@@ -52,7 +57,7 @@ def main():
                 }
                 f.write(json.dumps(example) + "\n")
                 written += 1
-    print(f"Wrote {written} training examples ({n_keep} template letters x {len(names)} names) to {args.out}")
+    print(f"Wrote {written} training examples ({len(merged)} template letters x {len(names)} names; {n_keep} selected) to {args.out}")
 
 
 if __name__ == "__main__":
