@@ -1,0 +1,277 @@
+{
+  "data_quality": {
+    "total_outputs": 800,
+    "empty_or_truncated": 7,
+    "empty_by_task": {
+      "letter": 7
+    }
+  },
+  "pronoun_use": {
+    "default|female": {
+      "fem": 0.899,
+      "mal": 0.0,
+      "they": 0.424,
+      "any_gendered": 0.899
+    },
+    "default|male": {
+      "fem": 0.01,
+      "mal": 0.758,
+      "they": 0.596,
+      "any_gendered": 0.758
+    },
+    "mitigation|female": {
+      "fem": 0.032,
+      "mal": 0.0,
+      "they": 0.568,
+      "any_gendered": 0.032
+    },
+    "mitigation|male": {
+      "fem": 0.0,
+      "mal": 0.02,
+      "they": 0.62,
+      "any_gendered": 0.02
+    }
+  },
+  "gendered_pronoun_rate_by_condition": {
+    "default": 0.828,
+    "mitigation": 0.026
+  },
+  "default_pronoun_vs_name_gender": {
+    "letters": 198,
+    "gendered": 164,
+    "matches_name_gender": 163,
+    "opposite": 0
+  },
+  "detector_cv": {
+    "name_masked|gender": {
+      "mean": 0.7379,
+      "sd": 0.0972,
+      "folds": 4
+    },
+    "name_masked|gender|default": {
+      "mean": 0.9398,
+      "sd": 0.0509,
+      "folds": 4
+    },
+    "name_masked|gender|mitigation": {
+      "mean": 0.5132,
+      "sd": 0.0967,
+      "folds": 4
+    },
+    "name_masked|race": {
+      "mean": 0.5118,
+      "sd": 0.0873,
+      "folds": 4
+    },
+    "name_masked|race|default": {
+      "mean": 0.6215,
+      "sd": 0.1712,
+      "folds": 4
+    },
+    "name_masked|race|mitigation": {
+      "mean": 0.4866,
+      "sd": 0.1092,
+      "folds": 4
+    },
+    "name_and_pronouns_masked|gender": {
+      "mean": 0.5547,
+      "sd": 0.048,
+      "folds": 4
+    },
+    "name_and_pronouns_masked|gender|default": {
+      "mean": 0.6719,
+      "sd": 0.044,
+      "folds": 4
+    },
+    "name_and_pronouns_masked|gender|mitigation": {
+      "mean": 0.5081,
+      "sd": 0.0906,
+      "folds": 4
+    },
+    "name_and_pronouns_masked|race": {
+      "mean": 0.5649,
+      "sd": 0.0295,
+      "folds": 4
+    },
+    "name_and_pronouns_masked|race|default": {
+      "mean": 0.6713,
+      "sd": 0.0951,
+      "folds": 4
+    },
+    "name_and_pronouns_masked|race|mitigation": {
+      "mean": 0.4917,
+      "sd": 0.1125,
+      "folds": 4
+    }
+  },
+  "ols_clustered": {
+    "communal_rate": {
+      "Intercept": {
+        "coef": 0.4569,
+        "p": 0.0
+      },
+      "C(race)[T.white]": {
+        "coef": -0.0741,
+        "p": 0.0993
+      },
+      "C(gender)[T.male]": {
+        "coef": 0.0685,
+        "p": 0.0704
+      },
+      "C(condition)[T.mitigation]": {
+        "coef": 0.2253,
+        "p": 0.0012
+      },
+      "C(race)[T.white]:C(gender)[T.male]": {
+        "coef": -0.0597,
+        "p": 0.2993
+      },
+      "C(race)[T.white]:C(condition)[T.mitigation]": {
+        "coef": -0.2024,
+        "p": 0.0375
+      },
+      "C(gender)[T.male]:C(condition)[T.mitigation]": {
+        "coef": -0.1032,
+        "p": 0.4597
+      },
+      "C(race)[T.white]:C(gender)[T.male]:C(condition)[T.mitigation]": {
+        "coef": 0.2974,
+        "p": 0.0625
+      }
+    },
+    "agentic_rate": {
+      "Intercept": {
+        "coef": 0.0158,
+        "p": 0.0746
+      },
+      "C(race)[T.white]": {
+        "coef": 0.0316,
+        "p": 0.0983
+      },
+      "C(gender)[T.male]": {
+        "coef": 0.0114,
+        "p": 0.5683
+      },
+      "C(condition)[T.mitigation]": {
+        "coef": 0.0191,
+        "p": 0.2132
+      },
+      "C(race)[T.white]:C(gender)[T.male]": {
+        "coef": -0.0514,
+        "p": 0.0577
+      },
+      "C(race)[T.white]:C(condition)[T.mitigation]": {
+        "coef": -0.0292,
+        "p": 0.3717
+      },
+      "C(gender)[T.male]:C(condition)[T.mitigation]": {
+        "coef": -0.0045,
+        "p": 0.903
+      },
+      "C(race)[T.white]:C(gender)[T.male]:C(condition)[T.mitigation]": {
+        "coef": 0.081,
+        "p": 0.1716
+      }
+    },
+    "n_words": {
+      "Intercept": {
+        "coef": 233.9796,
+        "p": 0.0
+      },
+      "C(race)[T.white]": {
+        "coef": -7.9796,
+        "p": 0.6233
+      },
+      "C(gender)[T.male]": {
+        "coef": -10.7959,
+        "p": 0.4023
+      },
+      "C(condition)[T.mitigation]": {
+        "coef": -11.9171,
+        "p": 0.3157
+      },
+      "C(race)[T.white]:C(gender)[T.male]": {
+        "coef": 28.2359,
+        "p": 0.1637
+      },
+      "C(race)[T.white]:C(condition)[T.mitigation]": {
+        "coef": -4.7212,
+        "p": 0.8035
+      },
+      "C(gender)[T.male]:C(condition)[T.mitigation]": {
+        "coef": -1.1066,
+        "p": 0.936
+      },
+      "C(race)[T.white]:C(gender)[T.male]:C(condition)[T.mitigation]": {
+        "coef": -15.0951,
+        "p": 0.517
+      }
+    }
+  },
+  "word_rate_means": [
+    {
+      "condition": "default",
+      "race": "black",
+      "gender": "female",
+      "communal_rate": 0.457,
+      "agentic_rate": 0.016,
+      "n_words": 233.98
+    },
+    {
+      "condition": "default",
+      "race": "black",
+      "gender": "male",
+      "communal_rate": 0.525,
+      "agentic_rate": 0.027,
+      "n_words": 223.184
+    },
+    {
+      "condition": "default",
+      "race": "white",
+      "gender": "female",
+      "communal_rate": 0.383,
+      "agentic_rate": 0.047,
+      "n_words": 226.0
+    },
+    {
+      "condition": "default",
+      "race": "white",
+      "gender": "male",
+      "communal_rate": 0.392,
+      "agentic_rate": 0.007,
+      "n_words": 243.44
+    },
+    {
+      "condition": "mitigation",
+      "race": "black",
+      "gender": "female",
+      "communal_rate": 0.682,
+      "agentic_rate": 0.035,
+      "n_words": 222.062
+    },
+    {
+      "condition": "mitigation",
+      "race": "black",
+      "gender": "male",
+      "communal_rate": 0.648,
+      "agentic_rate": 0.042,
+      "n_words": 210.16
+    },
+    {
+      "condition": "mitigation",
+      "race": "white",
+      "gender": "female",
+      "communal_rate": 0.406,
+      "agentic_rate": 0.037,
+      "n_words": 209.362
+    },
+    {
+      "condition": "mitigation",
+      "race": "white",
+      "gender": "male",
+      "communal_rate": 0.609,
+      "agentic_rate": 0.074,
+      "n_words": 210.6
+    }
+  ]
+}
