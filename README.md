@@ -4,12 +4,74 @@
 
 An output-level audit of a large language model. Every prompt is identical except for one thing: the candidate's first name, chosen to signal race and gender. If the generated text changes, the name caused it.
 
-> **Status:** work in progress. A small real pilot has been run against the live Claude API
-> (20 names x 2 tasks x 2 conditions x 1 sample = 80 outputs; see `results/outputs.csv`), and the
-> full local countermeasure pipeline (detector, training-pair construction, LoRA fine-tune,
-> re-audit) has been run end to end on that pilot data -- see **Pilot countermeasure result**
-> below. The full-scale run (800 outputs, `SAMPLES_PER_NAME = 10`) has not been run yet; the
-> numbers below are from the pilot only and are not yet statistically meaningful on their own.
+> **Status:** complete. The full run (20 names x 2 tasks x 2 prompt conditions x 10 samples = 800
+> outputs from `claude-sonnet-5-5`) has been collected and analysed, robustness checks are done, and
+> the local LoRA countermeasure has been trained and re-audited at full scale (two versions).
+> The pilot (80 outputs) is kept in `results/pilot/` for reference.
+
+## Project structure
+
+```
+name-swap-bias-audit/
+├── src/                          # all code
+│   ├── config.py                 # model, settings, candidate profile, CLEAR prompts
+│   ├── run_experiment.py         # Part 1: sends every prompt to the Claude API -> results/outputs.csv
+│   ├── analyze.py                # hire rates, tone words, regression -> results/summary.txt
+│   ├── detector.py               # bias detector: hide name -> TF-IDF -> logistic regression
+│   ├── robustness_checks.py      # pronoun analysis + detector with names AND pronouns hidden
+│   ├── build_training_data.py    # Part 2: name-neutral training pairs for the countermeasure
+│   ├── train_mlx.sh              # LoRA fine-tune of Qwen2.5-1.5B-Instruct (Apple MLX)
+│   ├── run_experiment_mlx.py     # re-audit the base / tuned small model with the same prompts
+│   ├── summarize_countermeasure.py
+│   └── compare_countermeasures.py
+├── data/
+│   ├── names.csv                 # the 20 names (4 race x gender groups)
+│   ├── sft_pairs.jsonl           # countermeasure training pairs
+│   └── mlx_sft/                  # train / valid / test splits for MLX
+├── results/
+│   ├── outputs.csv               # the 800 raw Claude outputs
+│   ├── summary.txt, scores.csv   # analysis results
+│   ├── robustness_checks.*       # pronoun + detector checks
+│   ├── outputs_mlx_*.csv         # base vs tuned small-model letters
+│   ├── countermeasure_*          # countermeasure comparison (base, v1, v2)
+│   ├── pilot/                    # the 80-output pilot
+│   └── v1_12templates/           # first countermeasure attempt (kept for comparison)
+├── models/                       # trained detectors + LoRA adapters
+├── paper/                        # 2-page manuscript (Word, PDF, LaTeX) and figure
+├── run_full_pipeline.command     # runs the whole pipeline end to end
+└── run_countermeasure_v2.command # runs the final countermeasure
+```
+
+## Pipeline
+
+```
+data/names.csv + CLEAR template (config.py)
+        |  run_experiment.py
+        v
+Claude API (claude-sonnet-5-5, temperature 1.0)  ->  results/outputs.csv (800 outputs)
+        |  analyze.py                       |  detector.py + robustness_checks.py
+        v                                   v
+decisions, tone, regression          name hidden -> TF-IDF -> classifier (tested on unseen names)
+                                            |
+                                            v  build_training_data.py -> train_mlx.sh -> run_experiment_mlx.py
+                                     countermeasure: Qwen2.5-1.5B + LoRA, re-audited the same way
+```
+
+## Main results (full run)
+
+| Measure | Default prompt | With bias-reduction instruction |
+|---|---|---|
+| Hire rate (all groups) | 100% | 100% |
+| Letters using "he"/"she" | 82.8% | 2.6% |
+| Gender detected, name hidden (chance 50%) | 94% | 51% |
+| Gender detected, name and pronouns hidden | 67% | 51% |
+
+- Every candidate was hired, so a decision-only audit finds no bias.
+- By default, 163 of 164 gendered letters matched the gender the name suggests.
+- The bias-reduction instruction (Tamkin et al., 2023) removes almost all of this signal.
+- 7 of 800 outputs were empty letters and were excluded.
+- Detector figures are means over 4 name-grouped folds. Re-running with a newer scikit-learn (1.9)
+  assigns names to folds differently and gives about 95% / 47%; the conclusion is the same.
 
 ## Research questions
 
@@ -102,30 +164,23 @@ Claude itself is "fixed" -- the training data comes from Claude's own outputs, s
 detector misses is carried straight into the tuned model, and the tuned model is a different
 (much smaller) model from the one being audited. Report the result that way.
 
-### Pilot countermeasure result
+### Countermeasure result (full scale)
 
-Ran once, end to end, on pilot-scale data: 16 training examples (12 low-`bias_score` letters x
-every name, held-out split), 300 LoRA iterations on Qwen2.5-1.5B-Instruct, then re-audited both
-the base and the tuned model on 20 names x 2 tasks x 2 conditions x 3 samples (120 letters each),
-scored by the same race/gender detector trained on the real Claude pilot data:
+Base and tuned Qwen2.5-1.5B-Instruct were re-audited with the same CLEAR prompts (120 letters each)
+and scored by the detector trained on Claude's letters.
 
-| | race accuracy (chance 0.500) | gender accuracy (chance 0.500) | mean bias_score |
+| | Untuned | v1 (12 templates) | v2 (60 templates) |
 |---|---|---|---|
-| base (untuned) | 0.500 | 0.975 | 0.571 |
-| LoRA-tuned | 0.500 | 0.500 | 0.555 |
+| Letters with gendered pronouns | 97.5% | 0.8% | 28.3% |
+| Gender detected | 97.5% | 47.5% | 60.0% |
+| Mean length (words) | 311 | 95.5 | 195 |
+| Unique letters | 100% | 85% | 100% |
 
-Gender was strongly detectable from the base model's letters alone (97.5% accuracy, name
-masked) and fell to chance after fine-tuning. Race was already at chance in both, so there was no
-race signal for the detector to remove at this scale.
-
-**Caveat, stated plainly:** the LoRA run trained on only 16 examples and the training loss
-dropped to ~0.01, i.e. the model is close to memorizing those examples rather than learning a
-general pattern. A gender accuracy of chance is consistent with real debiasing, but is also
-consistent with the tuned model producing more homogeneous, less name-responsive letters overall
-(a "mode collapse" explanation that is not a countermeasure success). A manual read of several
-`results/outputs_mlx_tuned.csv` letters across different names is needed to tell these apart
-before reporting this as a positive result, and the full-scale run (more templates, more names)
-is needed before drawing a real conclusion either way.
+v1 took the least-biased letters overall; most came from the bias-reduction condition, leaving
+only 12 templates, and the model largely memorised them (short, partly repeated letters). v2 picks
+templates within the default condition (`--within-condition default`, 60 templates): letters stay
+varied and usable, and the gender signal is reduced but not removed. The pilot-scale result is
+kept in `results/pilot/` and `models/pilot/`.
 
 ## Limitations
 

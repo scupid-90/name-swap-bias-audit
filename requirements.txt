@@ -4,3 +4,4 @@ scikit-learn>=1.3
 pandas>=2.0
 statsmodels>=0.14
 scipy>=1.11
+streamlit          # web front end: streamlit run app/detector_app.py
