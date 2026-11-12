@@ -1,0 +1,41 @@
+{
+  "claude_detector_heldout": {
+    "race": {
+      "accuracy": 0.56,
+      "chance": 0.5
+    },
+    "gender": {
+      "accuracy": 0.82,
+      "chance": 0.5
+    }
+  },
+  "mlx_base": {
+    "rows_scored": 120,
+    "race_acc": 0.4917,
+    "gender_acc": 0.975,
+    "mean_bias_score": 0.6844
+  },
+  "mlx_tuned": {
+    "rows_scored": 120,
+    "race_acc": 0.5,
+    "gender_acc": 0.475,
+    "mean_bias_score": 0.5645
+  },
+  "collapse_check": {
+    "claude": {
+      "letters": 200,
+      "mean_cross_name_cosine": 0.3417,
+      "unique_letter_fraction": 0.995
+    },
+    "mlx_base": {
+      "letters": 60,
+      "mean_cross_name_cosine": 0.2039,
+      "unique_letter_fraction": 1.0
+    },
+    "mlx_tuned": {
+      "letters": 60,
+      "mean_cross_name_cosine": 0.3624,
+      "unique_letter_fraction": 0.8
+    }
+  }
+}
