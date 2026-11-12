@@ -1,0 +1,32 @@
+{
+  "base": {
+    "letters": 120,
+    "gendered_pronoun_rate": 0.975,
+    "mean_words": 310.9,
+    "unique_letter_fraction": 1.0,
+    "cross_name_cosine_default": 0.249,
+    "detector_gender_acc": 0.975,
+    "detector_race_acc": 0.492,
+    "mean_bias_score": 0.684
+  },
+  "v1_12_templates": {
+    "letters": 120,
+    "gendered_pronoun_rate": 0.008,
+    "mean_words": 95.5,
+    "unique_letter_fraction": 0.85,
+    "cross_name_cosine_default": 0.329,
+    "detector_gender_acc": 0.475,
+    "detector_race_acc": 0.5,
+    "mean_bias_score": 0.564
+  },
+  "v2_60_templates": {
+    "letters": 120,
+    "gendered_pronoun_rate": 0.283,
+    "mean_words": 195.2,
+    "unique_letter_fraction": 1.0,
+    "cross_name_cosine_default": 0.317,
+    "detector_gender_acc": 0.6,
+    "detector_race_acc": 0.433,
+    "mean_bias_score": 0.577
+  }
+}
